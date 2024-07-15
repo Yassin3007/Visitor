@@ -18,8 +18,7 @@ class VisitorServiceProvider extends ServiceProvider
     {
         $this->publishes([
             realpath(__DIR__.'/migrations') => base_path('/database/migrations'),
-        ],
-            'migrations');
+        ], 'migrations');
 
         $this->publishes([
             __DIR__.'/config/visitor.php' => config_path('visitor.php'),
@@ -34,15 +33,12 @@ class VisitorServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerBindings();
-
-        $this->RegisterIp();
-
-        $this->RegisterVisitor();
-
-        $this->RegisterBooting();
+        $this->registerIp();
+        $this->registerVisitor();
+        $this->registerBooting();
     }
 
-    public function RegisterVisitor()
+    public function registerVisitor()
     {
         $this->app->singleton('visitor', function ($app) {
             return new Visitor(
@@ -50,7 +46,6 @@ class VisitorServiceProvider extends ServiceProvider
                 $app['Weboap\Visitor\Services\Geo\GeoInterface'],
                 $app['ip'],
                 $app['Weboap\Visitor\Services\Cache\CacheInterface']
-
             );
         });
 
@@ -59,7 +54,7 @@ class VisitorServiceProvider extends ServiceProvider
         });
     }
 
-    public function RegisterIp()
+    public function registerIp()
     {
         $this->app->singleton('ip', function ($app) {
             return new Ip(
@@ -68,14 +63,14 @@ class VisitorServiceProvider extends ServiceProvider
                     $app->make('Weboap\Visitor\Services\Validation\Validator'),
                     $app->make('Weboap\Visitor\Services\Validation\Checker'),
                 ]
-
             );
         });
     }
 
     public function registerBooting()
     {
-        $this->app->booting(function () {
+        // Use booted instead of booting in newer versions of Laravel
+        $this->app->booted(function () {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
             $loader->alias('Visitor', 'Weboap\Visitor\Facades\VisitorFacade');
         });
